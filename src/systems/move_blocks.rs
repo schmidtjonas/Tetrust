@@ -1,15 +1,13 @@
 use amethyst::{
-    assets::Handle,
     core::{timing::Time, transform::Transform},
     derive::SystemDesc,
-    ecs::{Entities, Join, Read, ReadExpect, System, SystemData, Write, WriteExpect, WriteStorage},
+    ecs::{Entities, Join, Read, System, SystemData, Write, WriteExpect, WriteStorage},
     input::{InputHandler, StringBindings},
-    renderer::{SpriteRender, SpriteSheet},
     shrev::EventChannel,
 };
 
 use crate::{
-    entities::{Block, Board, Position, Square, BLOCK_COUNT},
+    entities::{Block, Board, Position},
     events::BlockLandEvent,
     tetris::{BLOCK_SIZE, MOVE_TIME},
 };
@@ -18,6 +16,15 @@ use crate::{
 pub struct MoveBlocksSystem {
     pub left: bool,
     pub right: bool,
+}
+
+impl MoveBlocksSystem {
+    pub fn new() -> Self {
+        Self {
+            left: false,
+            right: false,
+        }
+    }
 }
 
 impl<'s> System<'s> for MoveBlocksSystem {

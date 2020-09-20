@@ -56,8 +56,48 @@ impl Board {
         }
     }
 
-    pub fn is_full(&self) -> bool {
+    pub fn is_game_over(&self) -> bool {
         !self.is_free(&self.start_position())
+    }
+
+    pub fn row_is_full(&self, row: usize) -> bool {
+        for square in &self.filled_squares[row] {
+            if !square {
+                return false;
+            }
+        }
+        true
+    }
+
+    pub fn full_rows_below(&self) -> Vec<usize> {
+        let mut result = vec![0; BOARD_HEIGHT];
+        for row in (0..self.rows-1).rev() {
+            result[row] = result[row + 1];
+            if self.row_is_full(row + 1) {
+                result[row] += 1;
+            }
+        }
+        result
+    }
+
+    pub fn full_rows(&self) -> Vec<bool> {
+        let mut result = vec![false; BOARD_HEIGHT];
+        for row in 0..self.rows {
+            result[row] |= self.row_is_full(row);
+        }
+        result
+    }
+
+    pub fn remove_full_rows(&mut self) {
+        let full_rows = self.full_rows_below();
+        for row in (0..self.rows).rev() {
+            let new_row: i8 = row as i8 - full_rows[row] as i8 - if self.row_is_full(row) { 1 } else { 0 };
+            if new_row >= 0 {
+                self.filled_squares[row] = self.filled_squares[new_row as usize].clone();
+            } else {
+                self.filled_squares[row] = vec![false; BOARD_WIDTH];
+            }
+        }
     }
 }
 

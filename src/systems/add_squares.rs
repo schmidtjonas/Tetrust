@@ -8,9 +8,8 @@ use amethyst::{
 };
 
 use crate::{
-    entities::{Block, Position, Square, BLOCK_COUNT},
+    entities::{Position, Square, BLOCK_COUNT},
     events::BlockLandEvent,
-    tetris::{ARENA_HEIGHT, ARENA_WIDTH, BLOCK_SIZE},
 };
 
 #[derive(SystemDesc)]
@@ -66,12 +65,12 @@ impl<'s> System<'s> for AddSquaresSystem {
                 entities
                     .build_entity()
                     .with(square, &mut squares)
+                    .with(transform, &mut transforms)
                     .with(
                         SpriteRender::new(sprite_sheet_handle.clone(), color_index),
                         &mut sprite_renders,
                     )
                     .with(*square_position, &mut positions)
-                    .with(transform, &mut transforms)
                     .build();
                 println!("Square in {:?}", square_position);
             }

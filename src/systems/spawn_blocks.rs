@@ -2,7 +2,7 @@ use amethyst::{
     assets::Handle,
     core::transform::Transform,
     derive::SystemDesc,
-    ecs::{Entities, Read, ReadExpect, ReaderId, System, SystemData, Write, WriteStorage},
+    ecs::{Entities, ReadExpect, ReaderId, System, SystemData, Write, WriteStorage},
     renderer::{SpriteRender, SpriteSheet},
     shrev::EventChannel,
 };
@@ -10,7 +10,6 @@ use amethyst::{
 use crate::{
     entities::{Block, Board, Position},
     events::BlockLandEvent,
-    tetris::{ARENA_HEIGHT, ARENA_WIDTH},
 };
 
 #[derive(SystemDesc)]
@@ -65,12 +64,12 @@ impl<'s> System<'s> for SpawnBlocksSystem {
             entities
                 .build_entity()
                 .with(block, &mut blocks)
+                .with(transform, &mut transforms)
                 .with(
                     SpriteRender::new(sprite_sheet_handle.clone(), color_index),
                     &mut sprite_renders,
                 )
                 .with(board.start_position(), &mut positions)
-                .with(transform, &mut transforms)
                 .build();
         }
     }
