@@ -1,13 +1,15 @@
 use amethyst::{
+    assets::Handle,
     core::{timing::Time, transform::Transform},
     derive::SystemDesc,
-    ecs::{Entities, Join, Read, System, SystemData, Write, WriteStorage},
+    ecs::{Entities, Join, Read, ReadExpect, System, SystemData, Write, WriteExpect, WriteStorage},
     input::{InputHandler, StringBindings},
+    renderer::{SpriteRender, SpriteSheet},
     shrev::EventChannel,
 };
 
 use crate::{
-    entities::Block,
+    entities::{Block, Board, Position, Square, BLOCK_COUNT},
     events::BlockLandEvent,
     tetris::{BLOCK_SIZE, MOVE_TIME},
 };
@@ -21,7 +23,9 @@ pub struct MoveBlocksSystem {
 impl<'s> System<'s> for MoveBlocksSystem {
     type SystemData = (
         WriteStorage<'s, Block>,
+        WriteStorage<'s, Position>,
         WriteStorage<'s, Transform>,
+        WriteExpect<'s, Board>,
         Entities<'s>,
         Read<'s, Time>,
         Write<'s, EventChannel<BlockLandEvent>>,
@@ -30,9 +34,20 @@ impl<'s> System<'s> for MoveBlocksSystem {
 
     fn run(
         &mut self,
-        (mut blocks, mut transforms, entities, time, mut land_channel, input): Self::SystemData,
+        (
+            mut blocks,
+            mut positions,
+            mut transforms,
+            mut board,
+            entities,
+            time,
+            mut land_channel,
+            input,
+        ): Self::SystemData,
     ) {
-        for (entity, block, transform) in (&*entities, &mut blocks, &mut transforms).join() {
+        for (entity, block, position, transform) in
+            (&*entities, &mut blocks, &mut positions, &mut transforms).join()
+        {
             let passed_time = time.delta_seconds();
             block.time_since_move += passed_time;
             if input.action_is_down("down").unwrap_or(false) {
@@ -40,22 +55,36 @@ impl<'s> System<'s> for MoveBlocksSystem {
             }
 
             if input.action_is_down("right").unwrap_or(false) && !self.right {
-                transform.prepend_translation_x(BLOCK_SIZE);
+                if board.block_can_move_to(block, &(position.clone() + Position::new(0, 1))) {
+                    println!("move right from {:?}", position);
+                    transform.prepend_translation_x(BLOCK_SIZE);
+                    position.col += 1;
+                }
             }
             if input.action_is_down("left").unwrap_or(false) && !self.left {
-                transform.prepend_translation_x(-BLOCK_SIZE);
+                if board.block_can_move_to(block, &(position.clone() + Position::new(0, -1))) {
+                    println!("move left from {:?}", position);
+                    transform.prepend_translation_x(-BLOCK_SIZE);
+                    position.col -= 1;
+                }
             }
             self.right = input.action_is_down("right").unwrap_or(false);
             self.left = input.action_is_down("left").unwrap_or(false);
 
             if block.time_since_move >= MOVE_TIME {
-                transform.prepend_translation_y(-BLOCK_SIZE);
-                block.time_since_move -= MOVE_TIME;
-            }
-
-            if transform.translation().y < 2.0 * BLOCK_SIZE {
-                land_channel.single_write(BlockLandEvent);
-                entities.delete(entity).unwrap();
+                if board.block_can_move_to(block, &(position.clone() + Position::new(1, 0))) {
+                    println!("move down from {:?}", position);
+                    transform.prepend_translation_y(-BLOCK_SIZE);
+                    block.time_since_move -= MOVE_TIME;
+                    position.row += 1;
+                } else {
+                    land_channel.single_write(BlockLandEvent {
+                        block: block.clone(),
+                        position: *position,
+                    });
+                    entities.delete(entity).unwrap();
+                    board.place_block_at(block, position);
+                }
             }
         }
     }

@@ -18,7 +18,7 @@ mod systems;
 mod tetris;
 
 use crate::{
-    systems::{MoveBlocksSystem, SpawnBlocksSystem},
+    systems::{MoveBlocksSystem, SpawnBlocksSystem, AddSquaresSystem},
     tetris::Tetris,
 };
 
@@ -45,6 +45,7 @@ fn main() -> amethyst::Result<()> {
             &[],
         )
         .with(SpawnBlocksSystem::new(), "spawn_blocks_system", &[])
+        .with(AddSquaresSystem::new(), "add_squares_system", &[])
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(RenderUi::default())

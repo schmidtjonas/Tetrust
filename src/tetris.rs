@@ -8,7 +8,10 @@ use amethyst::{
     shrev::EventChannel,
 };
 
-use crate::{entities::Block, events::BlockLandEvent};
+use crate::{
+    entities::{Block, Board, Position, Square},
+    events::BlockLandEvent,
+};
 
 pub const ARENA_HEIGHT: f32 = 976.0;
 pub const ARENA_WIDTH: f32 = 610.0;
@@ -24,18 +27,27 @@ impl SimpleState for Tetris {
         initialize_camera(world);
         initialize_event_channel(world);
 
+        let board = Board::default();
         let sprite_sheet_handle = load_sprite_sheet(world);
 
         // insert first block, why do I have to do this?
         let mut transform = Transform::default();
         transform.set_translation_xyz(ARENA_WIDTH * 0.5, ARENA_HEIGHT, 0.0);
+        let block = Block::rand();
+        let color_index = block.color_index;
         world
             .create_entity()
-            .with(Block::rand())
-            .with(SpriteRender::new(sprite_sheet_handle.clone(), 0))
+            .with(block)
+            .with(SpriteRender::new(sprite_sheet_handle.clone(), color_index))
             .with(transform)
+            .with(board.start_position())
             .build();
 
+        world.insert(board);
+        world.insert(Square {
+            position: Position::new(0, 0),
+            color_index: 7,
+        });
         world.insert(sprite_sheet_handle);
     }
 }
@@ -52,7 +64,10 @@ fn initialize_camera(world: &mut World) {
 
 fn initialize_event_channel(world: &mut World) {
     let mut land_channel = EventChannel::<BlockLandEvent>::new();
-    land_channel.single_write(BlockLandEvent);
+    land_channel.single_write(BlockLandEvent {
+        block: Block::rand(),
+        position: Position::new(0, 0),
+    });
     world.insert(land_channel);
 }
 

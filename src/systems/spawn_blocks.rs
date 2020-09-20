@@ -2,13 +2,13 @@ use amethyst::{
     assets::Handle,
     core::transform::Transform,
     derive::SystemDesc,
-    ecs::{Entities, ReadExpect, ReaderId, System, SystemData, Write, WriteStorage},
+    ecs::{Entities, Read, ReadExpect, ReaderId, System, SystemData, Write, WriteStorage},
     renderer::{SpriteRender, SpriteSheet},
     shrev::EventChannel,
 };
 
 use crate::{
-    entities::Block,
+    entities::{Block, Board, Position},
     events::BlockLandEvent,
     tetris::{ARENA_HEIGHT, ARENA_WIDTH},
 };
@@ -28,10 +28,12 @@ impl<'s> System<'s> for SpawnBlocksSystem {
     type SystemData = (
         WriteStorage<'s, Block>,
         WriteStorage<'s, Transform>,
+        WriteStorage<'s, Position>,
         Entities<'s>,
         ReadExpect<'s, Handle<SpriteSheet>>,
         WriteStorage<'s, SpriteRender>,
         Write<'s, EventChannel<BlockLandEvent>>,
+        ReadExpect<'s, Board>,
     );
 
     fn run(
@@ -39,10 +41,12 @@ impl<'s> System<'s> for SpawnBlocksSystem {
         (
             mut blocks,
             mut transforms,
+            mut positions,
             entities,
             sprite_sheet_handle,
             mut sprite_renders,
             mut land_channel,
+            board,
         ): Self::SystemData,
     ) {
         let reader_id = self
@@ -50,11 +54,13 @@ impl<'s> System<'s> for SpawnBlocksSystem {
             .get_or_insert_with(|| land_channel.register_reader());
 
         for _ in land_channel.read(reader_id) {
-            let mut transform = Transform::default();
-            transform.set_translation_xyz(ARENA_WIDTH * 0.5, ARENA_HEIGHT, 0.0);
-
             let block = Block::rand();
             let color_index = block.color_index;
+            let position = board.start_position();
+            let (x, y) = position.coordinates(true);
+
+            let mut transform = Transform::default();
+            transform.set_translation_xyz(x, y, 0.0);
 
             entities
                 .build_entity()
@@ -63,6 +69,7 @@ impl<'s> System<'s> for SpawnBlocksSystem {
                     SpriteRender::new(sprite_sheet_handle.clone(), color_index),
                     &mut sprite_renders,
                 )
+                .with(board.start_position(), &mut positions)
                 .with(transform, &mut transforms)
                 .build();
         }

@@ -3,7 +3,8 @@ use amethyst::ecs::{Component, DenseVecStorage};
 
 #[derive(Debug)]
 pub struct Square {
-    pub offset: Position,
+    pub position: Position,
+    pub color_index: usize,
 }
 
 impl Component for Square {

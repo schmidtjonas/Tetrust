@@ -4,17 +4,19 @@ use rand::Rng;
 use crate::entities::{Position, Square};
 use amethyst::ecs::{Component, DenseVecStorage};
 
-#[derive(Debug)]
+pub const BLOCK_COUNT: usize = 7;
+
+#[derive(Debug, Clone)]
 pub struct Block {
-    pub squares: Vec<Square>,
+    pub square_offsets: Vec<Position>,
     pub time_since_move: f32,
     pub color_index: usize,
 }
 
 impl Block {
-    pub fn from_vec(squares: Vec<Square>, color_index: usize) -> Self {
+    pub fn from_vec(square_offsets: Vec<Position>, color_index: usize) -> Self {
         Self {
-            squares,
+            square_offsets,
             time_since_move: 0.0,
             color_index,
         }
@@ -22,33 +24,64 @@ impl Block {
 
     pub fn from_color_index(color_index: usize) -> Block {
         // { 'I' => 0, 'J' => 1, 'L' => 2, 'O' => 3, 'S' => 4, 'T' => 5, 'Z' => 6 }
-        let positions = match color_index {
-            3 => vec![
-                Position::new(0, 0),
-                Position::new(0, 1),
-                Position::new(1, 0),
-                Position::new(1, 1),
-            ],
+        let square_offsets = match color_index {
             0 => vec![
                 Position::new(0, 0),
                 Position::new(0, 1),
                 Position::new(0, 2),
                 Position::new(0, 3),
             ],
+            1 => vec![
+                Position::new(0,0),
+                Position::new(1,0),
+                Position::new(1,1),
+                Position::new(1,2),
+            ],
+            2 => vec![
+                Position::new(1,0),
+                Position::new(1,1),
+                Position::new(1,2),
+                Position::new(0,2),
+            ],
+            3 => vec![
+                Position::new(0, 0),
+                Position::new(0, 1),
+                Position::new(1, 0),
+                Position::new(1, 1),
+            ],
+            4 => vec![
+                Position::new(1,0),
+                Position::new(1,1),
+                Position::new(0,1),
+                Position::new(0,2),
+            ],
+            5 => vec![
+                Position::new(1,0),
+                Position::new(1,1),
+                Position::new(0,1),
+                Position::new(1,2),
+            ],
+            6 => vec![
+                Position::new(0,0),
+                Position::new(0,1),
+                Position::new(1,1),
+                Position::new(1,2),
+            ],
             _ => vec![],
         };
 
-        Self::from_vec(
-            positions
-                .iter()
-                .map(|pos| Square { offset: *pos })
-                .collect(),
-            color_index,
-        )
+        Self::from_vec(square_offsets, color_index)
     }
 
     pub fn rand() -> Self {
-        Self::from_color_index(rand::thread_rng().gen_range(0,7))
+        Self::from_color_index(rand::thread_rng().gen_range(0, 7))
+    }
+
+    pub fn square_positions(&self, position: &Position) -> Vec<Position> {
+        self.square_offsets
+            .iter()
+            .map(|offset| position + offset)
+            .collect()
     }
 }
 
