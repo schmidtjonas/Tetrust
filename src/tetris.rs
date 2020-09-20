@@ -32,9 +32,11 @@ impl SimpleState for Tetris {
 
         // insert first block, why do I have to do this?
         let mut transform = Transform::default();
-        transform.set_translation_xyz(ARENA_WIDTH * 0.5, ARENA_HEIGHT, 0.0);
         let block = Block::rand();
         let color_index = block.color_index;
+        let position = board.start_position();
+        let (x, y) = position.coordinates(true);
+        transform.set_translation_xyz(x, y, 0.0);
         world
             .create_entity()
             .with(block)
