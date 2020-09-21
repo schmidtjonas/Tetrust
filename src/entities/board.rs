@@ -99,12 +99,15 @@ impl Board {
     }
 
     pub fn remove_full_rows(&mut self) {
-        let mut cur_row: usize = self.rows - 1;
+        let mut cur_row = self.rows - 1;
         for row in (0..self.rows).rev() {
             if !self.row_is_full(row) {
                 self.filled_squares[cur_row] = self.filled_squares[row].clone();
                 cur_row -= 1;
             }
+        }
+        for row in 0..cur_row + 1 {
+            self.filled_squares[row] = vec![false; BOARD_WIDTH];
         }
     }
 }
