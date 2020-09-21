@@ -49,6 +49,16 @@ impl Board {
         }
         true
     }
+    pub fn block_can_rotate_right(&self, block: &Block, position: &Position) -> bool {
+        let mut block = block.clone();
+        block.rotate(1);
+        for square_position in &block.square_positions(position) {
+            if !self.is_free(square_position) {
+                return false;
+            }
+        }
+        true
+    }
 
     pub fn place_block_at(&mut self, block: &Block, position: &Position) {
         for square_position in &block.square_positions(position) {
@@ -71,7 +81,7 @@ impl Board {
 
     pub fn full_rows_below(&self) -> Vec<usize> {
         let mut result = vec![0; BOARD_HEIGHT];
-        for row in (0..self.rows-1).rev() {
+        for row in (0..self.rows - 1).rev() {
             result[row] = result[row + 1];
             if self.row_is_full(row + 1) {
                 result[row] += 1;
@@ -89,13 +99,11 @@ impl Board {
     }
 
     pub fn remove_full_rows(&mut self) {
-        let full_rows = self.full_rows_below();
+        let mut cur_row: usize = self.rows - 1;
         for row in (0..self.rows).rev() {
-            let new_row: i8 = row as i8 - full_rows[row] as i8 - if self.row_is_full(row) { 1 } else { 0 };
-            if new_row >= 0 {
-                self.filled_squares[row] = self.filled_squares[new_row as usize].clone();
-            } else {
-                self.filled_squares[row] = vec![false; BOARD_WIDTH];
+            if !self.row_is_full(row) {
+                self.filled_squares[cur_row] = self.filled_squares[row].clone();
+                cur_row -= 1;
             }
         }
     }

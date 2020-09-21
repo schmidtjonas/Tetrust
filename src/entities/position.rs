@@ -1,7 +1,7 @@
 use amethyst::ecs::{Component, DenseVecStorage};
 use std::ops::{Add, Sub};
 
-use crate::tetris::{ARENA_HEIGHT, ARENA_WIDTH, BLOCK_SIZE};
+use crate::tetris::{ARENA_HEIGHT, BLOCK_SIZE};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Position {
@@ -16,10 +16,10 @@ impl Position {
 
     pub fn coordinates(&self, is_block: bool) -> (f32, f32) {
         (
-            self.col as f32 * BLOCK_SIZE + BLOCK_SIZE * if is_block { 2.0 } else { 0.5 },
+            self.col as f32 * BLOCK_SIZE + BLOCK_SIZE * if is_block { 1.5 } else { 0.5 },
             ARENA_HEIGHT
                 - self.row as f32 * BLOCK_SIZE
-                - BLOCK_SIZE * if is_block { 1.0 } else { 0.5 },
+                - BLOCK_SIZE * if is_block { 1.5 } else { 0.5 },
         )
     }
 }

@@ -4,6 +4,7 @@
     "left": [[Key(A)]],
     "right": [[Key(D)]],
     "down": [[Key(S)]],
+    "rotate": [[Key(W)]],
   },
 )
 

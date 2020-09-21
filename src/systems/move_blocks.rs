@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use amethyst::{
     core::{timing::Time, transform::Transform},
     derive::SystemDesc,
@@ -16,6 +17,7 @@ use crate::{
 pub struct MoveBlocksSystem {
     pub left: bool,
     pub right: bool,
+    pub rotate: bool,
 }
 
 impl MoveBlocksSystem {
@@ -23,6 +25,7 @@ impl MoveBlocksSystem {
         Self {
             left: false,
             right: false,
+            rotate: false,
         }
     }
 }
@@ -63,24 +66,28 @@ impl<'s> System<'s> for MoveBlocksSystem {
 
             if input.action_is_down("right").unwrap_or(false) && !self.right {
                 if board.block_can_move_to(block, &(position.clone() + Position::new(0, 1))) {
-                    println!("move right from {:?}", position);
                     transform.prepend_translation_x(BLOCK_SIZE);
                     position.col += 1;
                 }
             }
             if input.action_is_down("left").unwrap_or(false) && !self.left {
                 if board.block_can_move_to(block, &(position.clone() + Position::new(0, -1))) {
-                    println!("move left from {:?}", position);
                     transform.prepend_translation_x(-BLOCK_SIZE);
                     position.col -= 1;
                 }
             }
+            if input.action_is_down("rotate").unwrap_or(false) && !self.rotate {
+                if board.block_can_rotate_right(block, &position) {
+                    transform.prepend_rotation_z_axis(PI / 2.0);
+                    block.rotate(1);
+                }
+            }
             self.right = input.action_is_down("right").unwrap_or(false);
             self.left = input.action_is_down("left").unwrap_or(false);
+            self.rotate = input.action_is_down("rotate").unwrap_or(false);
 
             if block.time_since_move >= MOVE_TIME {
                 if board.block_can_move_to(block, &(position.clone() + Position::new(1, 0))) {
-                    println!("move down from {:?}", position);
                     transform.prepend_translation_y(-BLOCK_SIZE);
                     block.time_since_move -= MOVE_TIME;
                     position.row += 1;
