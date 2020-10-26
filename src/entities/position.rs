@@ -5,21 +5,19 @@ use crate::tetris::{ARENA_HEIGHT, BLOCK_SIZE};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Position {
-    pub row: i8,
-    pub col: i8,
+    pub row: i32,
+    pub col: i32,
 }
 
 impl Position {
-    pub fn new(row: i8, col: i8) -> Self {
+    pub fn new(row: i32, col: i32) -> Self {
         Self { row, col }
     }
 
-    pub fn coordinates(&self, is_block: bool) -> (f32, f32) {
+    pub fn coordinates(&self, block_width: f32) -> (f32, f32) {
         (
-            self.col as f32 * BLOCK_SIZE + BLOCK_SIZE * if is_block { 1.5 } else { 0.5 },
-            ARENA_HEIGHT
-                - self.row as f32 * BLOCK_SIZE
-                - BLOCK_SIZE * if is_block { 1.5 } else { 0.5 },
+            self.col as f32 * BLOCK_SIZE + BLOCK_SIZE * block_width / 2.0,
+            ARENA_HEIGHT - self.row as f32 * BLOCK_SIZE - BLOCK_SIZE * block_width / 2.0,
         )
     }
 }

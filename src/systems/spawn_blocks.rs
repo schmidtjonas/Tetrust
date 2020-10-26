@@ -56,7 +56,7 @@ impl<'s> System<'s> for SpawnBlocksSystem {
             let block = Block::rand();
             let color_index = block.color_index;
             let position = board.start_position();
-            let (x, y) = position.coordinates(true);
+            let (x, y) = position.coordinates(block.width as f32);
 
             let mut transform = Transform::default();
             transform.set_translation_xyz(x, y, 0.0);

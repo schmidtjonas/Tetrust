@@ -5,25 +5,27 @@ use crate::entities::Position;
 use amethyst::ecs::{Component, DenseVecStorage};
 
 pub const BLOCK_COUNT: usize = 7;
-pub const SQUARES_IN_BLOCK: usize = 3;
 
 #[derive(Debug, Clone)]
 pub struct Block {
     pub square_offsets: Vec<Position>,
     pub time_since_move: f32,
     pub color_index: usize,
+    pub width: usize,
 }
 
 impl Block {
-    pub fn from_vec(square_offsets: Vec<Position>, color_index: usize) -> Self {
+    pub fn from_vec(square_offsets: Vec<Position>, color_index: usize, width: usize) -> Self {
         Self {
             square_offsets,
             time_since_move: 0.0,
             color_index,
+            width,
         }
     }
 
     pub fn from_color_index(color_index: usize) -> Block {
+        println!("color_index: {}", color_index);
         // { 'I' => 0, 'J' => 1, 'L' => 2, 'O' => 3, 'S' => 4, 'T' => 5, 'Z' => 6 }
         let square_offsets = match color_index {
             0 => vec![
@@ -71,7 +73,15 @@ impl Block {
             _ => vec![],
         };
 
-        Self::from_vec(square_offsets, color_index)
+        Self::from_vec(
+            square_offsets,
+            color_index,
+            match color_index {
+                0 => 4,
+                3 => 2,
+                _ => 3,
+            },
+        )
     }
 
     pub fn rand() -> Self {
@@ -84,7 +94,7 @@ impl Block {
             for _ in 0..rotation {
                 let Position { row, col } = square_offset.clone();
                 square_offset.row = col;
-                square_offset.col = SQUARES_IN_BLOCK as i8 - 1 - row;
+                square_offset.col = self.width as i32 - 1 - row;
             }
         }
     }

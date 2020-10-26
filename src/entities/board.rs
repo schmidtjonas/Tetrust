@@ -23,9 +23,9 @@ impl Board {
 
     pub fn is_inside(&self, position: &Position) -> bool {
         position.row >= 0
-            && position.row < self.rows as i8
+            && position.row < self.rows as i32
             && position.col >= 0
-            && position.col < self.cols as i8
+            && position.col < self.cols as i32
     }
 
     pub fn is_free(&self, position: &Position) -> bool {
@@ -38,7 +38,7 @@ impl Board {
     }
 
     pub fn start_position(&self) -> Position {
-        Position::new(0, (self.cols / 2) as i8)
+        Position::new(0, (self.cols / 2) as i32)
     }
 
     pub fn block_can_move_to(&self, block: &Block, position: &Position) -> bool {

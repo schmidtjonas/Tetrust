@@ -63,7 +63,7 @@ impl<'s> System<'s> for RemoveLinesSystem {
                     transform.prepend_translation_y(
                         -BLOCK_SIZE * full_rows_below[position.row as usize] as f32,
                     );
-                    position.row += full_rows_below[position.row as usize] as i8;
+                    position.row += full_rows_below[position.row as usize] as i32;
                 }
             }
 

@@ -35,7 +35,7 @@ impl SimpleState for Tetris {
         let block = Block::rand();
         let color_index = block.color_index;
         let position = board.start_position();
-        let (x, y) = position.coordinates(true);
+        let (x, y) = position.coordinates(block.width as f32);
         transform.set_translation_xyz(x, y, 0.0);
         world
             .create_entity()
@@ -65,11 +65,7 @@ fn initialize_camera(world: &mut World) {
 }
 
 fn initialize_event_channel(world: &mut World) {
-    let mut land_channel = EventChannel::<BlockLandEvent>::new();
-    land_channel.single_write(BlockLandEvent {
-        block: Block::rand(),
-        position: Position::new(0, 0),
-    });
+    let land_channel = EventChannel::<BlockLandEvent>::new();
     world.insert(land_channel);
 }
 

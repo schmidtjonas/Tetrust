@@ -59,7 +59,7 @@ impl<'s> System<'s> for AddSquaresSystem {
                     color_index: color_index,
                 };
                 let mut transform = Transform::default();
-                let (x, y) = square_position.coordinates(false);
+                let (x, y) = square_position.coordinates(1.0);
                 transform.set_translation_xyz(x, y, 0.0);
 
                 entities
