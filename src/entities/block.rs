@@ -25,7 +25,6 @@ impl Block {
     }
 
     pub fn from_color_index(color_index: usize) -> Block {
-        println!("color_index: {}", color_index);
         // { 'I' => 0, 'J' => 1, 'L' => 2, 'O' => 3, 'S' => 4, 'T' => 5, 'Z' => 6 }
         let square_offsets = match color_index {
             0 => vec![

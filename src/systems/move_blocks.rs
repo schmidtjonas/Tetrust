@@ -13,19 +13,22 @@ use crate::{
     tetris::{BLOCK_SIZE, MOVE_TIME},
 };
 
+pub const INPUT_TIME_ROTATE: f32 = 0.25;
+pub const INPUT_TIME_MOVE: f32 = 0.15;
+
 #[derive(SystemDesc)]
 pub struct MoveBlocksSystem {
-    pub left: bool,
-    pub right: bool,
-    pub rotate: bool,
+    pub left: f32,
+    pub right: f32,
+    pub rotate: f32,
 }
 
 impl MoveBlocksSystem {
     pub fn new() -> Self {
         Self {
-            left: false,
-            right: false,
-            rotate: false,
+            left: 0.0,
+            right: 0.0,
+            rotate: 0.0,
         }
     }
 }
@@ -60,31 +63,43 @@ impl<'s> System<'s> for MoveBlocksSystem {
         {
             let passed_time = time.delta_seconds();
             block.time_since_move += passed_time;
+            self.left -= passed_time;
+            self.right -= passed_time;
+            self.rotate -= passed_time;
             if input.action_is_down("down").unwrap_or(false) {
                 block.time_since_move += passed_time * 3.0;
             }
 
-            if input.action_is_down("right").unwrap_or(false) && !self.right {
+            if input.action_is_down("right").unwrap_or(false) && self.right <= 0.0 {
+                self.right += INPUT_TIME_MOVE;
                 if board.block_can_move_to(block, &(position.clone() + Position::new(0, 1))) {
                     transform.prepend_translation_x(BLOCK_SIZE);
                     position.col += 1;
                 }
             }
-            if input.action_is_down("left").unwrap_or(false) && !self.left {
+            if input.action_is_down("left").unwrap_or(false) && self.left <= 0.0 {
+                self.left += INPUT_TIME_MOVE;
                 if board.block_can_move_to(block, &(position.clone() + Position::new(0, -1))) {
                     transform.prepend_translation_x(-BLOCK_SIZE);
                     position.col -= 1;
                 }
             }
-            if input.action_is_down("rotate").unwrap_or(false) && !self.rotate {
+            if input.action_is_down("rotate").unwrap_or(false) && self.rotate <= 0.0 {
+                self.rotate += INPUT_TIME_ROTATE;
                 if board.block_can_rotate_right(block, &position) {
                     transform.prepend_rotation_z_axis(PI / 2.0);
                     block.rotate(1);
                 }
             }
-            self.right = input.action_is_down("right").unwrap_or(false);
-            self.left = input.action_is_down("left").unwrap_or(false);
-            self.rotate = input.action_is_down("rotate").unwrap_or(false);
+            if !input.action_is_down("right").unwrap_or(false) {
+                self.right = 0.0;
+            }
+            if !input.action_is_down("left").unwrap_or(false) {
+                self.left = 0.0;
+            }
+            if !input.action_is_down("rotate").unwrap_or(false) {
+                self.rotate = 0.0;
+            }
 
             if block.time_since_move >= MOVE_TIME {
                 if board.block_can_move_to(block, &(position.clone() + Position::new(1, 0))) {
