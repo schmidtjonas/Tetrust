@@ -72,7 +72,6 @@ impl<'s> System<'s> for AddSquaresSystem {
                     )
                     .with(*square_position, &mut positions)
                     .build();
-                println!("Square in {:?}", square_position);
             }
         }
     }

@@ -1,3 +1,5 @@
+use std::process;
+
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
@@ -53,6 +55,11 @@ impl<'s> System<'s> for SpawnBlocksSystem {
             .get_or_insert_with(|| land_channel.register_reader());
 
         for _ in land_channel.read(reader_id) {
+            if board.is_game_over() {
+                println!("Game Over!");
+                process::exit(0);
+            }
+
             let block = Block::rand();
             let color_index = block.color_index;
             let position = board.start_position();
