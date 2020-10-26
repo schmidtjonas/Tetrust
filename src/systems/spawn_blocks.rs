@@ -56,7 +56,7 @@ impl<'s> System<'s> for SpawnBlocksSystem {
 
         for _ in land_channel.read(reader_id) {
             if board.is_game_over() {
-                println!("Game Over!");
+                println!("Game Over! Score: {}", board.score);
                 process::exit(0);
             }
 

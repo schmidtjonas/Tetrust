@@ -11,6 +11,16 @@ use crate::{
     tetris::BLOCK_SIZE,
 };
 
+pub fn get_score(full_rows: i32) -> i32 {
+    match full_rows {
+        1 => 40,
+        2 => 100,
+        3 => 300,
+        4 => 1200,
+        _ => 0,
+    }
+}
+
 #[derive(SystemDesc)]
 pub struct RemoveLinesSystem {
     reader_id: Option<ReaderId<BlockLandEvent>>,
@@ -50,7 +60,8 @@ impl<'s> System<'s> for RemoveLinesSystem {
         for _ in land_channel.read(reader_id) {
             let full_rows_below = board.full_rows_below();
             let is_full = board.full_rows();
-            if is_full.iter().all(|i| !i) {
+            let full_rows_count = is_full.iter().fold(0, |sum, i| sum + if *i { 1 } else { 0 });
+            if full_rows_count == 0 {
                 continue;
             }
 
@@ -68,6 +79,7 @@ impl<'s> System<'s> for RemoveLinesSystem {
             }
 
             board.remove_full_rows();
+            board.score += get_score(full_rows_count);
         }
     }
 }

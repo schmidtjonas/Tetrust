@@ -8,6 +8,7 @@ pub const BOARD_WIDTH: usize = 10;
 pub struct Board {
     pub rows: usize,
     pub cols: usize,
+    pub score: i32,
     filled_squares: Vec<Vec<bool>>,
 }
 
@@ -117,6 +118,7 @@ impl Default for Board {
         Board {
             rows: BOARD_HEIGHT,
             cols: BOARD_WIDTH,
+            score: 0,
             filled_squares: vec![vec![false; BOARD_WIDTH]; BOARD_HEIGHT],
         }
     }
